@@ -9,18 +9,22 @@ import {
 //import { InjectRepository } from '@nestjs/typeorm';
 import { BirdHouse } from './BirdHouse';
 import { Repository } from 'typeorm';
+import { Cron } from '@nestjs/schedule';
 import { createBirdHouseDto } from './createBirdHouse.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { createResidencyDTO } from './createResidency.dto';
+import { residencyHistory } from '../residencies/residencyHistory'
+import { createResidencyDTO } from '../residencies/createResidency.dto';
 
 @Injectable()
 export class BirdHousesService {
   constructor(
     @InjectRepository(BirdHouse)
     private readonly birdHouseRepository: Repository<BirdHouse>,
+    @InjectRepository(residencyHistory)
+    private readonly residenceRepository: Repository<residencyHistory>,
   ) {}
   async addBirdHouse(bhDTO: createBirdHouseDto): Promise<BirdHouse> {
-    const newBirdHouse = this.birdHouseRepository.create({ ...bhDTO });
+    const newBirdHouse = this.birdHouseRepository.create({ ...bhDTO, birds: 0, eggs: 0 });
     return this.birdHouseRepository.save(newBirdHouse);
   }
   async selectAll(page: number = 1): Promise<BirdHouse[]> { //http://localhost:3000/house?page=2
@@ -28,6 +32,10 @@ export class BirdHousesService {
       select: {
         ubid: true,
         name: true,
+        longitude: true,
+        latitude: true,
+        birds: true,
+        eggs: true,
       },
       skip: 5 * (page - 1),
       take: 5,
@@ -46,54 +54,38 @@ export class BirdHousesService {
 
    return this.birdHouseRepository.findOne({ where: { ubid } })
   }
+
+  @Cron('45 * * * * *')
+  async clearUnmodified() {
+    const dates = this.residenceRepository.find({
+      select: {
+        modifiedAt: true,
+        ubid: true,
+      }
+    })
+    dates.then((result) => {
+      for (let index = 0; index < result.length; index++) {
+        const element = result[index];
+        const currentDate = new Date();
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth() + 1;
+        const day = currentDate.getDate();
+        const fullDate = year + "-0" + month + "-" + day
+        if(this.differenceYears(fullDate, element.modifiedAt) >= 1){
+          //delete using the modifiedat as where for history and use ubid to delete birdhouse
+        } 
+        //console.log(fullDate);
+        //console.log(element.modifiedAt)
+      }
+    })
+  }
+
+  differenceYears(date1: string, date2: string){
+    const dt1 = new Date(date1)
+    const dt2 = new Date(date2)
+    let diff = (dt1.getTime() - dt2.getTime()) / 1000;
+    diff /= (60 * 60 *24)
+    return Math.abs(Math.round(diff/365.25))
+  }
+
 }
-
-//     async addFavorite(favDTO: CreateFavoriteDto): Promise<Favorite> {
-//       const id = favDTO.user;
-//       const user = await this.userRepository.findOne({ where: { id } });
-//       if (!user) {
-//         throw new NotFoundException('User Not Found');
-//       }
-//       const newFavorite = new Favorite();
-//       newFavorite.user = user;
-//       newFavorite.pokemonID = favDTO.pokemonID;
-//       newFavorite.pokemonName = favDTO.pokemonName;
-//       return this.favoriteRepository.save(newFavorite);
-//     }
-
-//     async deleteFavorite(id: number) {
-//       const result = await this.favoriteRepository.delete({ id });
-
-//       if (result.affected === 0) {
-//         return new HttpException('User not found', HttpStatus.NOT_FOUND);
-//       }
-
-//       return result;
-//     }
-
-//     findAll(id: number): Promise<Favorite[]> {
-//       return this.favoriteRepository.find({
-//         relations: {
-//           user: true,
-//         },
-//         where: {
-//           user: {
-//             id: id,
-//           },
-//         },
-//       });
-//     }
-
-//     getUsersFavorites(id: number, pokemonid: number): Promise<Favorite[]>{
-//       return this.favoriteRepository.find({
-//         relations: {
-//           user: true,
-//         },
-//         where: {
-//           user: {
-//             id: id,
-//           },
-//           pokemonID: pokemonid,
-//         },
-//       });
-//     }

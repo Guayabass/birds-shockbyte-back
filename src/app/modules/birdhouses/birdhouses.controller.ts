@@ -22,7 +22,7 @@ import {
 // import { UserNotFoundException } from 'src/core/exceptions/UserNotFound.exception';
 import { BirdHousesService } from './birdhouses.service';
 import { createBirdHouseDto } from './createBirdHouse.dto';
-import { createResidencyDTO } from './createResidency.dto';
+import { createResidencyDTO } from '../residencies/createResidency.dto';
 
 @Controller('house')
 export class BirdHouseController {

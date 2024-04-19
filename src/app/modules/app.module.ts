@@ -5,11 +5,15 @@ import { BirdHouseModule } from './birdhouses/birdhouse.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BirdHouse } from './birdhouses/BirdHouse';
+import { residencyHistory } from './residencies/residencyHistory';
+import { residenceModule } from './residencies/residence.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     BirdHouseModule,
+    residenceModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -20,10 +24,11 @@ import { BirdHouse } from './birdhouses/BirdHouse';
         username: configService.get<string>('DATABASE_USER'),
         password: configService.get<string>('DATABASE_PASS'),
         database: configService.get<string>('DATABASE_NAME'),
-        entities: [BirdHouse],
+        entities: [BirdHouse, residencyHistory],
         synchronize: true,
       }),
     }),
+    ScheduleModule.forRoot()
   ],
   controllers: [],
   exports: [],

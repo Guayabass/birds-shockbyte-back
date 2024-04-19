@@ -4,9 +4,10 @@ import { BirdHousesService } from './birdhouses.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BirdHouse } from './BirdHouse';
 import { BirdHouseController } from './birdhouses.controller';
+import { residencyHistory } from '../residencies/residencyHistory';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BirdHouse])],
+  imports: [TypeOrmModule.forFeature([BirdHouse, residencyHistory])],
   controllers: [BirdHouseController],
   providers: [
     {
