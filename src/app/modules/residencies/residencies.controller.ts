@@ -29,5 +29,8 @@ export class residenceController {
     return this.residenceService.getCountAll(ubid)
   }
 
-
+  @Get('history/graph')
+  getInfoGraph(@Headers('x-ubid') headers: string){
+    return this.residenceService.fillGraph(headers)
+  }
 }

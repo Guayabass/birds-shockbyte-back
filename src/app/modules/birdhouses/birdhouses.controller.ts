@@ -13,8 +13,10 @@ import {
   Post,
   Query,
   //UseInterceptors,
+  Headers,
   UsePipes,
   ValidationPipe,
+  Patch,
 } from '@nestjs/common';
 // import { CreateUserDto } from 'src/app/modules/users-auth/CreateUser.dto';
 // import { LoginUser } from 'src/app/modules/users-auth/LoginUser.dto';
@@ -23,6 +25,7 @@ import {
 import { BirdHousesService } from './birdhouses.service';
 import { createBirdHouseDto } from './createBirdHouse.dto';
 import { createResidencyDTO } from '../residencies/createResidency.dto';
+import { updateBirdHouseDto } from './updateBirdHouse.dto';
 
 @Controller('house')
 export class BirdHouseController {
@@ -32,7 +35,7 @@ export class BirdHouseController {
 
   @Post('')
   @UsePipes(ValidationPipe)
-  createUser(@Body() bhDTO: createBirdHouseDto) {
+  createUser(@Body() bhDTO: createBirdHouseDto[] | createBirdHouseDto) {
     return this.birdHouseService.addBirdHouse(bhDTO);
   }
 
@@ -52,4 +55,13 @@ export class BirdHouseController {
     return this.birdHouseService.updateResidency(crDTO, ubid)
   }
 
+  @Get(':id')
+  showBirdHouse(@Headers('x-ubid') headers: string, @Param('id') ubid: string){
+    return this.birdHouseService.getBirdHouse(headers, ubid)
+  }
+
+  @Patch(':id')
+  updateBirdHouse(@Headers('x-ubid') headers: string, @Param('id') ubid: string, @Body() uBHDTO: updateBirdHouseDto,){
+    return this.birdHouseService.updateBirdHouse(headers, ubid, uBHDTO)
+  }
   }

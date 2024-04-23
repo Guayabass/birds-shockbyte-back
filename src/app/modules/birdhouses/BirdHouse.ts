@@ -13,10 +13,10 @@ import {
     @Column()
     name: string;
 
-    @Column()
+    @Column("decimal", { precision: 8, scale: 4 } )
     longitude: number;
 
-    @Column()
+    @Column("decimal", { precision: 8, scale: 4 } )
     latitude: number;
 
     @Column()
@@ -24,6 +24,12 @@ import {
 
     @Column()
     eggs: number;
+
+    @Column({type: 'date'})
+    lastModifiedAt: string;
+
+    @Column({type: 'date'})
+    createdAt: string;
 
     //https://typeorm.io/entities#special-columns
 

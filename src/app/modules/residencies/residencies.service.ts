@@ -45,13 +45,18 @@ export class residenceService {
     }
   }
 
-  async getCountAll(ubid: string) {
+  async getCountAll(ubid: string): Promise<number> {
     const count = await this.residenceRepository
     .createQueryBuilder("history")
     .where("history.ubid = :ubid", {ubid: ubid})
     .getCount()
 
     return count
+  }
+
+  async fillGraph(ubid: string){
+    const data = await this.residenceRepository.query(`SELECT updatedBirds, updatedEggs, DATE_FORMAT(modifiedAt, '%W') as date FROM residency_history WHERE ubid = '`+ubid+ `'ORDER BY modifiedAt DESC LIMIT 7`)
+    return data
   }
 //http://localhost:3000/house?page=2
 }
