@@ -35,7 +35,7 @@ export class BirdHouseController {
 
   @Post('')
   @UsePipes(ValidationPipe)
-  createUser(@Body() bhDTO: createBirdHouseDto[] | createBirdHouseDto) {
+  createBirdHouse(@Body() bhDTO: createBirdHouseDto[] | createBirdHouseDto) {
     return this.birdHouseService.addBirdHouse(bhDTO);
   }
 
